@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>マリーロール ご予約リマインダー</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -802,6 +803,10 @@
 
   // ===== 初期化 =====
   (function init() {
+    // 店舗ごとの案内URLで初期選択を変える（例: ?store=tennoji → 天王寺が選ばれた状態で開く）
+    var storeParam = new URLSearchParams(location.search).get("store");
+    if (storeParam && $("st-" + storeParam)) $("st-" + storeParam).checked = true;
+
     var today = new Date();
     var d = $("in-date");
     d.min = ymdStr(today);
