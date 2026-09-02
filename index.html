@@ -1,0 +1,839 @@
+<title>マリーロール ご予約リマインダー</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Marcellus&display=swap">
+<style>
+  :root {
+    --ground: #FAF6F5;
+    --card: #FFFFFF;
+    --ink: #3E3237;
+    --ink-soft: #8A7B81;
+    --accent: #B26775;
+    --accent-deep: #96505F;
+    --accent-soft: #F6E7E6;
+    --line: #EBDFDD;
+    --warn: #A05A2C;
+    --serif: "Shippori Mincho", "Hiragino Mincho ProN", serif;
+    --sans: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+    --latin: "Marcellus", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 26.5rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  /* ---- ヘッダー ---- */
+  header { text-align: center; padding: 0.5rem 0 0.4rem; }
+  .logotype {
+    font-family: var(--latin);
+    font-weight: 400;
+    font-size: 1.1rem;
+    letter-spacing: 0.18em;
+    color: var(--accent-deep);
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.55rem;
+    letter-spacing: 0.08em;
+    text-wrap: balance;
+    margin-top: 0.35rem;
+  }
+  .lede {
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    margin-top: 0.55rem;
+  }
+
+  /* ---- カード・フォーム ---- */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1.3rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .field { display: flex; flex-direction: column; gap: 0.5rem; }
+  .field-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--accent-deep);
+  }
+
+  .segment { display: flex; gap: 0.4rem; }
+  .segment input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .segment label {
+    flex: 1;
+    text-align: center;
+    padding: 0.65rem 0.2rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    background: var(--card);
+    cursor: pointer;
+  }
+  .segment input:checked + label {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    font-weight: 700;
+  }
+  .segment input:focus-visible + label {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  input[type="date"], input[type="datetime-local"], select {
+    font-family: var(--sans);
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 0.65rem 0.8rem;
+    min-height: 48px;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  input[type="date"]:focus-visible, input[type="datetime-local"]:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+  .select-shell { position: relative; }
+  .select-shell::after {
+    content: "";
+    position: absolute;
+    right: 1rem; top: 50%;
+    width: 0.5rem; height: 0.5rem;
+    border-right: 1.5px solid var(--ink-soft);
+    border-bottom: 1.5px solid var(--ink-soft);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  .chips { display: flex; flex-direction: column; gap: 0.45rem; }
+  .chips input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .chips label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.85rem;
+    min-height: 48px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    font-size: 0.93rem;
+    cursor: pointer;
+    color: var(--ink);
+    background: var(--card);
+  }
+  .chips label::before {
+    content: "";
+    flex: none;
+    width: 1.15rem; height: 1.15rem;
+    border: 1.5px solid var(--line);
+    border-radius: 50%;
+    background: var(--card);
+  }
+  .chips input:checked + label {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .chips input:checked + label::before {
+    border-color: var(--accent-deep);
+    background:
+      radial-gradient(circle at center, var(--accent-deep) 0 40%, transparent 45%);
+  }
+  .chips input:focus-visible + label {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .hint { font-size: 0.78rem; color: var(--ink-soft); }
+  .custom-shell { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.15rem; }
+  .custom-row { display: flex; gap: 0.4rem; }
+  .custom-row input[type="date"] { flex: 1.3; }
+  .custom-row .select-shell { flex: 1; }
+  .warn { font-size: 0.8rem; color: var(--warn); }
+
+  /* ---- まとめ表示 ---- */
+  .summary {
+    background: var(--accent-soft);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1rem 1.15rem;
+    text-align: center;
+  }
+  .summary .when {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+  }
+  .summary .where { font-size: 0.9rem; color: var(--accent-deep); margin-top: 0.15rem; }
+  .summary .menu { font-size: 0.88rem; color: var(--ink); margin-top: 0.3rem; }
+  .summary .alarms { font-size: 0.82rem; color: var(--ink-soft); margin-top: 0.45rem; }
+
+  /* ---- ボタン ---- */
+  .actions { display: flex; flex-direction: column; gap: 0.85rem; }
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    border-radius: 14px;
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+  }
+  .btn-primary { background: var(--accent); color: #FFFFFF; }
+  .btn-primary:active { background: var(--accent-deep); }
+  .btn-secondary {
+    background: var(--card);
+    color: var(--accent-deep);
+    border: 1.5px solid var(--accent);
+  }
+  .btn:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+  .btn-line { background: #06C755; color: #FFFFFF; }
+  .btn-line:active { background: #05A648; }
+  .btn-line.is-disabled { background: #C8CDC9; cursor: not-allowed; }
+  .btn-line.is-disabled:active { background: #C8CDC9; }
+  .line-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.1rem;
+    margin-top: 0.25rem;
+  }
+  .line-heading {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--accent-deep);
+    text-align: center;
+  }
+  .cal-block { display: flex; flex-direction: column; gap: 0.85rem; }
+  .btn-note {
+    font-size: 0.76rem;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: -0.45rem;
+  }
+  .change-alert {
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.75;
+    color: #8A4A1F;
+    background: #FDF1E4;
+    border: 1.5px solid #EBC9A4;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+  .disclaimer {
+    font-size: 0.85rem;
+    line-height: 1.9;
+    color: #8A4A1F;
+    background: #FDF1E4;
+    border: 1.5px solid #EBC9A4;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+  .disclaimer strong { font-weight: 700; }
+  .info-note {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    background: var(--accent-soft);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.7rem 0.9rem;
+  }
+  .demo-note {
+    font-size: 0.8rem;
+    color: var(--warn);
+    background: #FDF3EA;
+    border: 1px solid #F0DCC8;
+    border-radius: 12px;
+    padding: 0.7rem 0.9rem;
+  }
+  [hidden] { display: none !important; }
+
+  footer {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+    margin-top: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn, .segment label, .chips label { transition: background 0.15s ease, border-color 0.15s ease; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="logotype">Marie&nbsp;Laure</div>
+    <h1>ご予約リマインダー</h1>
+    <p class="lede">ご予約の日時を選んでカレンダーに登録すると、<br>ご来店前にスマホが自動でお知らせします。</p>
+  </header>
+
+  <div class="segment" role="radiogroup" aria-label="新しい登録か、予約の変更か">
+    <input type="radio" name="mode" id="mode-new" value="new" checked>
+    <label for="mode-new">新しく登録</label>
+    <input type="radio" name="mode" id="mode-change" value="change">
+    <label for="mode-change">予約の変更</label>
+  </div>
+  <section class="card">
+    <p class="change-alert" id="change-alert" hidden>
+      これはリマインドの変更であり、実際の予約変更ではありません。ご予約の変更は必ずサロンの公式LINEへ直接ご連絡いただくようお願いします。
+    </p>
+    <div class="field">
+      <span class="field-label" id="label-store">店舗</span>
+      <div class="segment" role="radiogroup" aria-labelledby="label-store">
+        <input type="radio" name="store" id="st-yodoyabashi" value="yodoyabashi" checked>
+        <label for="st-yodoyabashi">淀屋橋本店</label>
+        <input type="radio" name="store" id="st-umeda" value="umeda">
+        <label for="st-umeda">梅田店</label>
+        <input type="radio" name="store" id="st-tennoji" value="tennoji">
+        <label for="st-tennoji">天王寺店</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="in-date" id="label-date">ご予約日</label>
+      <input type="date" id="in-date">
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="in-time">開始時間</label>
+      <div class="select-shell">
+        <select id="in-time"></select>
+      </div>
+      <p class="warn" id="time-warn" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="in-menu-hand">メニュー（ハンド）</label>
+      <div class="select-shell">
+        <select id="in-menu-hand">
+          <option value="">なし</option>
+          <option value="長さだしあり 自爪風仕上げ">1. 長さだしあり 自爪風仕上げ</option>
+          <option value="長さだしあり １カラー仕上げ">2. 長さだしあり １カラー仕上げ</option>
+          <option value="長さだしなし 自爪風仕上げ">3. 長さだしなし 自爪風仕上げ</option>
+          <option value="長さだしなし １カラー仕上げ">4. 長さだしなし １カラー仕上げ</option>
+          <option value="育成ケア">5. 育成ケア</option>
+          <option value="お外し＋育成ケア">6. お外し＋育成ケア</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="in-menu-foot">メニュー（フット）</label>
+      <div class="select-shell">
+        <select id="in-menu-foot">
+          <option value="">なし</option>
+          <option value="フット深爪 自爪風仕上げ">1. フット深爪 自爪風仕上げ</option>
+          <option value="フット巻爪 自爪風仕上げ">2. フット巻爪 自爪風仕上げ</option>
+          <option value="フット 自爪風仕上げ">3. フット 自爪風仕上げ</option>
+          <option value="フット深爪 １カラー仕上げ">4. フット深爪 １カラー仕上げ</option>
+          <option value="フット巻爪 １カラー仕上げ">5. フット巻爪 １カラー仕上げ</option>
+          <option value="フット １カラー仕上げ">6. フット １カラー仕上げ</option>
+          <option value="フットオフ（フットバス付）">7. フットオフ（フットバス付）※自店オフのみ対応</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label" id="label-cal">お使いのカレンダー</span>
+      <div class="segment" role="radiogroup" aria-labelledby="label-cal">
+        <input type="radio" name="cal" id="cal-iphone" value="iphone" checked>
+        <label for="cal-iphone">iPhoneのカレンダー</label>
+        <input type="radio" name="cal" id="cal-google" value="google">
+        <label for="cal-google">Googleカレンダー</label>
+      </div>
+    </div>
+
+    <div class="field" id="alarm-field">
+      <span class="field-label" id="label-alarm">お知らせのタイミング（複数選べます）</span>
+      <div class="chips" role="group" aria-labelledby="label-alarm">
+        <input type="checkbox" id="al-prevnoon" value="prevnoon" checked>
+        <label for="al-prevnoon">前日のお昼12時</label>
+        <input type="checkbox" id="al-daynoon" value="daynoon">
+        <label for="al-daynoon">当日のお昼12時</label>
+        <input type="checkbox" id="al-custom" value="custom">
+        <label for="al-custom">自分で日時を決める</label>
+      </div>
+      <div class="custom-shell" id="custom-shell" hidden>
+        <label class="hint" for="in-custom-date">お知らせしてほしい日時</label>
+        <div class="custom-row">
+          <input type="date" id="in-custom-date" aria-label="お知らせの日付">
+          <div class="select-shell"><select id="in-custom-time" aria-label="お知らせの時間"></select></div>
+        </div>
+      </div>
+      <p class="warn" id="alarm-warn" hidden></p>
+    </div>
+  </section>
+
+  <section class="summary" aria-live="polite">
+    <div class="when" id="sum-when">—</div>
+    <div class="where" id="sum-where">—</div>
+    <div class="menu" id="sum-menu" hidden></div>
+    <div class="alarms" id="sum-alarms">—</div>
+  </section>
+
+  <div class="actions">
+    <p class="demo-note" id="demo-note" hidden>
+      これは見本ページです。「iPhoneのカレンダーに追加」のファイル保存だけは、見本の画面上では動きません（本番のページに設置すると動きます）。「Googleカレンダーに追加」は、このままお試しいただけます。
+    </p>
+    <div class="cal-block" id="ics-block">
+      <button class="btn btn-primary" id="btn-ics" type="button">iPhoneのカレンダーに追加</button>
+      <p class="btn-note">標準のカレンダーに、選んだお知らせ付きで登録されます</p>
+    </div>
+    <div class="cal-block" id="google-block" hidden>
+      <a class="btn btn-primary" id="btn-google" target="_blank" rel="noopener">Googleカレンダーに追加</a>
+      <p class="btn-note">Googleカレンダーの登録画面が開きます。<strong>保存する前に、画面内の「通知」で［1日前］などお好きなタイミングを追加してください。</strong><br>追加しない場合、通知はGoogleカレンダーの普段の設定どおりになります。</p>
+    </div>
+    <p class="info-note" id="change-note" hidden>
+      変更のとき：カレンダーには新しい予定として入ります。前の予定は、お手数ですがカレンダーから削除をお願いします。
+    </p>
+    <div class="line-block">
+      <p class="line-heading">サロンにも伝える</p>
+      <p class="change-alert" id="change-alert-line" hidden>
+        これはリマインドの変更であり、実際の予約変更ではありません。ご予約の変更は必ずサロンの公式LINEへ直接ご連絡いただくようお願いします。
+      </p>
+      <div class="chips" id="confirm-shell" hidden>
+        <input type="checkbox" id="confirm-changed">
+        <label for="confirm-changed" id="confirm-label">サロンへ連絡し予約を変更済みです</label>
+      </div>
+      <a class="btn btn-line" id="btn-line" target="_blank" rel="noopener">サロンのLINEに伝える</a>
+      <p class="btn-note">選んだ店舗の公式LINEが開いて、日時とメニューの入った文面が自動で入ります。<br>最後に、LINEの送信ボタンだけ押してください。</p>
+      <p class="warn" id="line-warn" hidden></p>
+    </div>
+  </div>
+
+  <p class="disclaimer">
+    本ページは、ご予約を忘れないための補助ツールとしてご用意しています。スマホの機種や設定によって、登録や通知が正しく動作しない場合があります。最終的なご予約の管理は、お客様ご自身にてお願いいたします。<strong>なお、通知の有無にかかわらずキャンセルポリシーは適用されます。</strong>
+  </p>
+
+  <footer>
+    <span>Marie Laure（マリーロール）</span>
+  </footer>
+</div>
+
+<script>
+  // ===== 店舗と営業時間 =====
+  // 平日: 梅田のみ10:00〜21:00、淀屋橋・天王寺は12:30〜21:00 ／ 土日祝: 3店とも10:00〜19:00
+  var STORES = {
+    yodoyabashi: { name: "マリーロール淀屋橋本店", lineId: "@383kvckh", weekday: ["12:30", "21:00"], holiday: ["10:00", "19:00"] },
+    umeda:       { name: "マリーロール梅田店",     lineId: "@410cchkt", weekday: ["10:00", "21:00"], holiday: ["10:00", "19:00"] },
+    tennoji:     { name: "マリーロール天王寺店",   lineId: "@309uzlkj", weekday: ["12:30", "21:00"], holiday: ["10:00", "19:00"] }
+  };
+
+  // 日本の祝日 2026〜2027年（見本用に埋め込み。年が進んだら追記する）
+  var HOLIDAYS = new Set([
+    "2026-01-01","2026-01-12","2026-02-11","2026-02-23","2026-03-20","2026-04-29",
+    "2026-05-03","2026-05-04","2026-05-05","2026-05-06","2026-07-20","2026-08-11",
+    "2026-09-21","2026-09-22","2026-09-23","2026-10-12","2026-11-03","2026-11-23",
+    "2027-01-01","2027-01-11","2027-02-11","2027-02-23","2027-03-21","2027-03-22",
+    "2027-04-29","2027-05-03","2027-05-04","2027-05-05","2027-07-19","2027-08-11",
+    "2027-09-20","2027-09-23","2027-10-11","2027-11-03","2027-11-23"
+  ]);
+
+  var ALARM_DEFS = {
+    prevnoon: { label: "前日のお昼12時" },
+    daynoon:  { label: "当日のお昼12時" },
+    custom:   { label: "自分で決めた日時" }
+  };
+  var DURATION_MIN = 90; // 施術時間の仮の値（カレンダー上の予定の長さ）
+  // LINEボタン上の警告文（本人支給の文面・2026-09-02）
+  var ALERT_CHANGE = "これはリマインドの変更であり、実際の予約変更ではありません。ご予約の変更は必ずサロンの公式LINEへ直接ご連絡いただくようお願いします。";
+  var ALERT_NEW = "※この設定はリマインドの設定です。実際の予約は、必ずサロンの公式LINEへ直接ご連絡いただくようお願いします。";
+  // カレンダーの備考欄に入れるキャンセルポリシー（本人支給の文面・2026-09-02）
+  var POLICY = "ご予約の前日18:00を過ぎてのキャンセルは当日キャンセル料、予約時間2時間前までの変更は当日変更料金（予約時間前2時間を過ぎての変更は当日キャンセル扱い）がかかります。日時の変更・キャンセルはお早めにサロンの公式LINE（TEL不可）へご連絡ください。";
+  var WEEKDAY_JA = ["日", "月", "火", "水", "木", "金", "土"];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+
+  function ymdStr(d) {
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+  function parseYmd(s) {
+    var p = s.split("-");
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+  function isHolidayOrWeekend(d) {
+    var w = d.getDay();
+    return w === 0 || w === 6 || HOLIDAYS.has(ymdStr(d));
+  }
+  function selectedStore() {
+    return document.querySelector('input[name="store"]:checked').value;
+  }
+  function selectedAlarms() {
+    var out = [];
+    if ($("al-prevnoon").checked) out.push("prevnoon");
+    if ($("al-daynoon").checked) out.push("daynoon");
+    if ($("al-custom").checked && $("in-custom-date").value && $("in-custom-time").value) out.push("custom");
+    return out;
+  }
+
+  // ===== 時間の選択肢を作る（店舗×日付の営業時間から） =====
+  function buildTimeOptions() {
+    var dateVal = $("in-date").value;
+    var sel = $("in-time");
+    var keep = sel.value;
+    var warn = $("time-warn");
+    sel.innerHTML = "";
+    warn.hidden = true;
+    if (!dateVal) return;
+
+    var d = parseYmd(dateVal);
+    var hours = STORES[selectedStore()][isHolidayOrWeekend(d) ? "holiday" : "weekday"];
+    var open = hours[0].split(":"), close = hours[1].split(":");
+    var t = new Date(d); t.setHours(+open[0], +open[1], 0, 0);
+    var last = new Date(d); last.setHours(+close[0], +close[1], 0, 0);
+    last.setMinutes(last.getMinutes() - 30); // 最終枠は閉店30分前まで
+    var now = new Date();
+
+    var options = [];
+    while (t <= last) {
+      if (t > now) options.push(pad2(t.getHours()) + ":" + pad2(t.getMinutes()));
+      t.setMinutes(t.getMinutes() + 15); // 15分刻み
+    }
+    if (options.length === 0) {
+      warn.textContent = "この日はもう受付時間を過ぎています。別の日を選んでください。";
+      warn.hidden = false;
+    }
+    options.forEach(function (v) {
+      var o = document.createElement("option");
+      o.value = v; o.textContent = v;
+      sel.appendChild(o);
+    });
+    if (options.indexOf(keep) >= 0) sel.value = keep;
+  }
+
+  // ===== 予定と通知の日時を組み立てる =====
+  function currentEvent() {
+    var dateVal = $("in-date").value, timeVal = $("in-time").value;
+    if (!dateVal || !timeVal) return null;
+    var d = parseYmd(dateVal), hm = timeVal.split(":");
+    var start = new Date(d); start.setHours(+hm[0], +hm[1], 0, 0);
+    var end = new Date(start.getTime() + DURATION_MIN * 60000);
+    return { start: start, end: end, store: STORES[selectedStore()] };
+  }
+  function alarmTime(key, ev) {
+    if (key === "prevnoon") {
+      var a = new Date(ev.start); a.setDate(a.getDate() - 1); a.setHours(12, 0, 0, 0); return a;
+    }
+    if (key === "daynoon") {
+      var b = new Date(ev.start); b.setHours(12, 0, 0, 0); return b;
+    }
+    var p = $("in-custom-date").value.split("-"), hm = $("in-custom-time").value.split(":");
+    return new Date(+p[0], +p[1] - 1, +p[2], +hm[0], +hm[1]); // 自分で決めた日時
+  }
+  function activeAlarms(ev) {
+    var now = new Date(), ok = [], past = [], late = [];
+    selectedAlarms().forEach(function (key) {
+      var t = alarmTime(key, ev);
+      if (t <= now) past.push(key);
+      else if (t >= ev.start) late.push(key);
+      else ok.push(key);
+    });
+    return { ok: ok, past: past, late: late };
+  }
+  function alarmLabel(key, ev) {
+    if (key !== "custom") return ALARM_DEFS[key].label;
+    var t = alarmTime(key, ev);
+    return (t.getMonth() + 1) + "月" + t.getDate() + "日 " + pad2(t.getHours()) + ":" + pad2(t.getMinutes());
+  }
+  function fmtStart(d) {
+    return (d.getMonth() + 1) + "月" + d.getDate() + "日（" + WEEKDAY_JA[d.getDay()] + "）" +
+      pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + "〜";
+  }
+  // 選んだメニュー（ハンド・フット）をまとめた文字列
+  function selectedMenuText() {
+    var parts = [];
+    if ($("in-menu-hand").value) parts.push($("in-menu-hand").value);
+    if ($("in-menu-foot").value) parts.push($("in-menu-foot").value);
+    return parts.join("／");
+  }
+  // カレンダーの備考欄（メニュー＋キャンセルポリシー）
+  function noteText() {
+    var m = selectedMenuText();
+    return (m ? "メニュー: " + m + "\n" : "") + POLICY;
+  }
+
+  function isChangeMode() { return $("mode-change").checked; }
+
+  // ===== サロンの公式LINEに送る文面 =====
+  function buildLineMessage(ev) {
+    var m = selectedMenuText(), lines;
+    if (isChangeMode()) {
+      lines = ["【ご予約変更のご報告】"];
+      lines.push("変更前: （元の日時を入れてください）");
+      lines.push("変更後: " + fmtStart(ev.start));
+    } else {
+      lines = ["ご予約リマインダーのページからの送信です。"];
+      lines.push("次回予約日時: " + fmtStart(ev.start));
+    }
+    if (m) lines.push("メニュー: " + m);
+    return lines.join("\n");
+  }
+
+  // ===== ICSファイル（iPhone標準カレンダー用） =====
+  // 日本時間の壁時計時刻をUTC表記に直す（端末の時計設定に依存させない）
+  function icsUtc(d) {
+    var u = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours() - 9, d.getMinutes()));
+    return u.getUTCFullYear() + pad2(u.getUTCMonth() + 1) + pad2(u.getUTCDate()) +
+      "T" + pad2(u.getUTCHours()) + pad2(u.getUTCMinutes()) + "00Z";
+  }
+  function icsLocal(d) {
+    return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) +
+      "T" + pad2(d.getHours()) + pad2(d.getMinutes()) + "00";
+  }
+  function utcNow() {
+    var n = new Date();
+    return n.getUTCFullYear() + pad2(n.getUTCMonth() + 1) + pad2(n.getUTCDate()) +
+      "T" + pad2(n.getUTCHours()) + pad2(n.getUTCMinutes()) + "00Z";
+  }
+  function icsEscape(s) {
+    return s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  }
+  function buildIcs(ev) {
+    var lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Marie Laure//Yoyaku Reminder//JA",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VTIMEZONE",
+      "TZID:Asia/Tokyo",
+      "BEGIN:STANDARD",
+      "DTSTART:19700101T000000",
+      "TZOFFSETFROM:+0900",
+      "TZOFFSETTO:+0900",
+      "TZNAME:JST",
+      "END:STANDARD",
+      "END:VTIMEZONE",
+      "BEGIN:VEVENT",
+      "UID:" + Date.now() + "@marielaure-reminder",
+      "DTSTAMP:" + utcNow(),
+      "DTSTART;TZID=Asia/Tokyo:" + icsLocal(ev.start),
+      "DTEND;TZID=Asia/Tokyo:" + icsLocal(ev.end),
+      "SUMMARY:" + icsEscape("ネイルのご予約（" + ev.store.name + "）"),
+      "LOCATION:" + icsEscape(ev.store.name),
+      "DESCRIPTION:" + icsEscape(noteText())
+    ];
+    activeAlarms(ev).ok.forEach(function (key) {
+      lines.push("BEGIN:VALARM", "ACTION:DISPLAY",
+        "DESCRIPTION:" + icsEscape("マリーロール ご予約のお知らせ"),
+        "TRIGGER;VALUE=DATE-TIME:" + icsUtc(alarmTime(key, ev)),
+        "END:VALARM");
+    });
+    lines.push("END:VEVENT", "END:VCALENDAR");
+    return lines.join("\r\n");
+  }
+
+  // ===== Googleカレンダーのリンク =====
+  function buildGoogleUrl(ev) {
+    var q = [
+      "action=TEMPLATE",
+      "text=" + encodeURIComponent("ネイルのご予約（" + ev.store.name + "）"),
+      "dates=" + icsLocal(ev.start) + "/" + icsLocal(ev.end),
+      "ctz=Asia/Tokyo",
+      "location=" + encodeURIComponent(ev.store.name),
+      "details=" + encodeURIComponent(noteText())
+    ];
+    return "https://calendar.google.com/calendar/render?" + q.join("&");
+  }
+
+  // ===== 画面の更新 =====
+  function refresh() {
+    buildTimeOptionsIfNeeded();
+    var ev = currentEvent();
+    var warn = $("alarm-warn");
+    warn.hidden = true;
+
+    // カレンダーの種類で表示を切り替える（Googleはお知らせのタイミングを選べないため）
+    var useGoogle = $("cal-google").checked;
+    $("alarm-field").hidden = useGoogle;
+    $("ics-block").hidden = useGoogle;
+    $("google-block").hidden = !useGoogle;
+
+    var change = isChangeMode();
+    $("label-date").textContent = change ? "変更後のご予約日" : "ご予約日";
+    $("change-alert").hidden = !change;
+    $("change-alert-line").textContent = change ? ALERT_CHANGE : ALERT_NEW;
+    $("change-alert-line").hidden = false;
+    $("change-note").hidden = !change;
+    $("confirm-shell").hidden = false;
+    $("confirm-label").textContent = change ? "サロンへ連絡し予約を変更済みです" : "サロンで直接予約済みです";
+    $("btn-line").textContent = change ? "サロンの公式LINEに予約の変更を報告" : "サロンの公式LINEに予約日時を送信";
+    // 「予約済み／変更済み」チェックが入るまでボタンを押せなくする
+    var needConfirm = !$("confirm-changed").checked;
+    $("btn-line").classList.toggle("is-disabled", needConfirm);
+    $("btn-line").setAttribute("aria-disabled", needConfirm ? "true" : "false");
+
+    var menu = selectedMenuText();
+    $("sum-menu").textContent = menu ? "メニュー: " + menu : "";
+    $("sum-menu").hidden = !menu;
+    $("line-warn").hidden = true;
+
+    if (!ev) {
+      $("sum-when").textContent = "—";
+      $("sum-where").textContent = "—";
+      $("sum-alarms").textContent = "日にちと時間を選んでください";
+      $("btn-google").removeAttribute("href");
+      $("btn-line").removeAttribute("href");
+      return;
+    }
+    var s = ev.start;
+    $("sum-when").textContent = fmtStart(s);
+    $("sum-where").textContent = ev.store.name;
+    $("btn-line").href = "https://line.me/R/oaMessage/" +
+      encodeURIComponent(ev.store.lineId) + "/?" + encodeURIComponent(buildLineMessage(ev));
+
+    var al = activeAlarms(ev);
+    if (useGoogle) {
+      $("sum-alarms").textContent = "お知らせ: 登録画面で通知を追加してください";
+    } else if (al.ok.length === 0) {
+      $("sum-alarms").textContent = "お知らせのタイミングを選ぶと、通知が届きます";
+    } else {
+      $("sum-alarms").textContent = "お知らせ: " + al.ok.map(function (k) { return alarmLabel(k, ev); }).join(" ／ ");
+    }
+    var msgs = [];
+    if (al.past.length > 0) {
+      msgs.push("「" + al.past.map(function (k) { return alarmLabel(k, ev); }).join("」「") + "」はすでに過ぎているため、通知されません。");
+    }
+    if (al.late.length > 0) {
+      msgs.push("「" + al.late.map(function (k) { return alarmLabel(k, ev); }).join("」「") + "」はご予約時間より後のため、通知されません。");
+    }
+    if ($("al-custom").checked && (!$("in-custom-date").value || !$("in-custom-time").value)) {
+      msgs.push("「自分で日時を決める」の日時を選んでください。");
+    }
+    if (msgs.length > 0) {
+      warn.textContent = msgs.join(" ");
+      warn.hidden = false;
+    }
+    $("btn-google").href = buildGoogleUrl(ev);
+  }
+
+  var lastTimeKey = "";
+  function buildTimeOptionsIfNeeded() {
+    var key = selectedStore() + "|" + $("in-date").value;
+    if (key !== lastTimeKey) { lastTimeKey = key; buildTimeOptions(); }
+  }
+
+  // ===== iPhoneカレンダー（ICS保存）ボタン =====
+  // 見本ページ（アーティファクト）の中ではファイル保存が仕組み上ブロックされるため、
+  // その場合は説明を出す。実際のWebサーバーに置いた場合はそのまま保存できる。
+  var inArtifact = !!(window.claude && typeof window.claude.use === "function");
+  if (inArtifact) $("demo-note").hidden = false;
+
+  $("btn-ics").addEventListener("click", function () {
+    var ev = currentEvent();
+    if (!ev) return;
+    if (inArtifact) {
+      $("demo-note").hidden = false;
+      $("demo-note").scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    var blob = new Blob([buildIcs(ev)], { type: "text/calendar;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "marielaure-yoyaku.ics";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+
+  $("btn-google").addEventListener("click", function (e) {
+    if (!currentEvent()) e.preventDefault();
+  });
+
+  $("btn-line").addEventListener("click", function (e) {
+    var ev = currentEvent(), w = $("line-warn");
+    if (!ev) { e.preventDefault(); return; }
+    if (!$("confirm-changed").checked) {
+      e.preventDefault();
+      w.textContent = "「" + $("confirm-label").textContent + "」にチェックを入れると押せるようになります。";
+      w.hidden = false;
+      return;
+    }
+    if (!selectedMenuText()) {
+      e.preventDefault();
+      w.textContent = "メニューを選んでから送ってください。";
+      w.hidden = false;
+      return;
+    }
+    w.hidden = true;
+  });
+
+  // ===== 初期化 =====
+  (function init() {
+    var today = new Date();
+    var d = $("in-date");
+    d.min = ymdStr(today);
+    var def = new Date(today);
+    def.setDate(def.getDate() + 21); // 予約日の初期値は約3週間後
+    d.value = ymdStr(def);
+    $("in-custom-date").min = ymdStr(today);
+    var ct = $("in-custom-time");
+    var ph = document.createElement("option");
+    ph.value = ""; ph.textContent = "時間";
+    ct.appendChild(ph);
+    for (var h = 0; h < 24; h++) {
+      ["00", "30"].forEach(function (mm) { // 30分刻み
+        var o = document.createElement("option");
+        o.value = pad2(h) + ":" + mm; o.textContent = pad2(h) + ":" + mm;
+        ct.appendChild(o);
+      });
+    }
+    $("al-custom").addEventListener("change", function () {
+      $("custom-shell").hidden = !this.checked;
+      // 開いたとき、日付が空なら予約日を初期値にする
+      if (this.checked && !$("in-custom-date").value && $("in-date").value) {
+        $("in-custom-date").value = $("in-date").value;
+      }
+    });
+    // モードを切り替えたら「予約済み／変更済み」チェックは入れ直してもらう
+    ["mode-new", "mode-change"].forEach(function (id) {
+      $(id).addEventListener("change", function () { $("confirm-changed").checked = false; });
+    });
+    document.querySelectorAll("input, select").forEach(function (el) {
+      el.addEventListener("change", refresh);
+    });
+    refresh();
+  })();
+</script>
