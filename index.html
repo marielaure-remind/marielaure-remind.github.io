@@ -309,6 +309,11 @@
     <p class="lede">ご予約の日時を選んでカレンダーに登録すると、<br>ご来店前にスマホが自動でお知らせします。</p>
   </header>
 
+  <p class="demo-note" id="inapp-note" hidden>
+    いまLINEなどのアプリの中の画面で開いています。このままでは「iPhoneのカレンダーに追加」がうまく働かないことがあります。<br>
+    画面のすみにあるメニュー（「…」や共有マーク）から<strong>「Safariで開く」（または「ブラウザで開く」）</strong>を選んで、開き直してからお使いください。
+  </p>
+
   <div class="segment" role="radiogroup" aria-label="新しい登録か、予約の変更か">
     <input type="radio" name="mode" id="mode-new" value="new" checked>
     <label for="mode-new">新しく登録</label>
@@ -420,6 +425,13 @@
     <div class="cal-block" id="ics-block">
       <button class="btn btn-primary" id="btn-ics" type="button">iPhoneのカレンダーに追加</button>
       <p class="btn-note">標準のカレンダーに、選んだお知らせ付きで登録されます</p>
+      <div class="info-note" id="ics-guide" hidden>
+        確認が出たら<strong>「許可」</strong>を押してください。押しても画面は変わりませんが、予定のファイルは保存できています。<br>
+        つづきは、あと3回タップするだけです。<br>
+        ① アドレスバー（画面の上か下）に出る<strong>「↓」マーク</strong>を押す<br>
+        ② <strong>「marielaure-yoyaku.ics」</strong>を押す<br>
+        ③ 開いた画面で<strong>「追加」</strong>を押すと、カレンダーに入ります
+      </div>
     </div>
     <div class="cal-block" id="google-block" hidden>
       <a class="btn btn-primary" id="btn-google" target="_blank" rel="noopener">Googleカレンダーに追加</a>
@@ -762,6 +774,11 @@
   var inArtifact = !!(window.claude && typeof window.claude.use === "function");
   if (inArtifact) $("demo-note").hidden = false;
 
+  // LINE・Instagramなどアプリ内の簡易ブラウザではファイル保存が働かないことがあるため、注意を表示する
+  if (/\bLine\/|Instagram|FBAN|FBAV/i.test(navigator.userAgent || "")) {
+    $("inapp-note").hidden = false;
+  }
+
   $("btn-ics").addEventListener("click", function () {
     var ev = currentEvent();
     if (!ev) return;
@@ -777,6 +794,9 @@
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    // 保存後は画面が変わらないため、次に押す場所の案内を出す
+    $("ics-guide").hidden = false;
+    $("ics-guide").scrollIntoView({ behavior: "smooth", block: "center" });
   });
 
   $("btn-google").addEventListener("click", function (e) {
