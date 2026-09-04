@@ -450,7 +450,7 @@
         <label for="confirm-changed" id="confirm-label">サロンへ連絡し予約を変更済みです</label>
       </div>
       <a class="btn btn-line" id="btn-line" target="_blank" rel="noopener">サロンのLINEに伝える</a>
-      <p class="btn-note">選んだ店舗の公式LINEが開いて、日時とメニューの入った文面が自動で入ります。<br>最後に、LINEの送信ボタンだけ押してください。</p>
+      <p class="btn-note" id="line-btn-note">選んだ店舗の公式LINEが開いて、日時とメニューの入った文面が自動で入ります。<br>最後に、LINEの送信ボタンだけ押してください。</p>
       <p class="warn" id="line-warn" hidden></p>
     </div>
   </div>
@@ -472,6 +472,11 @@
     umeda:       { name: "マリーロール梅田店",     lineId: "@410cchkt", weekday: ["10:00", "21:00"], holiday: ["10:00", "19:00"] },
     tennoji:     { name: "マリーロール天王寺店",   lineId: "@309uzlkj", weekday: ["12:30", "21:00"], holiday: ["10:00", "19:00"] }
   };
+
+  // 配布元の公式LINEに合わせて「サロンのLINEに伝える」の送り先だけを切り替える
+  // 例: ?store=yodoyabashi&line=marielaure → 画面は淀屋橋のまま、送り先はMarieLaure（@498xgmzs・2026-09-04本人支給）
+  var LINE_OVERRIDES = { marielaure: "@498xgmzs" };
+  var lineOverride = LINE_OVERRIDES[new URLSearchParams(location.search).get("line")] || null;
 
   // 日本の祝日 2026〜2027年（見本用に埋め込み。年が進んだら追記する）
   var HOLIDAYS = new Set([
@@ -735,7 +740,7 @@
     $("sum-when").textContent = fmtStart(s);
     $("sum-where").textContent = ev.store.name;
     $("btn-line").href = "https://line.me/R/oaMessage/" +
-      encodeURIComponent(ev.store.lineId) + "/?" + encodeURIComponent(buildLineMessage(ev));
+      encodeURIComponent(lineOverride || ev.store.lineId) + "/?" + encodeURIComponent(buildLineMessage(ev));
 
     var al = activeAlarms(ev);
     if (useGoogle) {
@@ -826,6 +831,11 @@
     // 店舗ごとの案内URLで初期選択を変える（例: ?store=tennoji → 天王寺が選ばれた状態で開く）
     var storeParam = new URLSearchParams(location.search).get("store");
     if (storeParam && $("st-" + storeParam)) $("st-" + storeParam).checked = true;
+
+    // 送り先の切り替え中は、ボタン下の説明も送り先に合わせる
+    if (lineOverride) {
+      $("line-btn-note").innerHTML = "マリーロールの公式LINE（MarieLaure）が開いて、日時とメニューの入った文面が自動で入ります。<br>最後に、LINEの送信ボタンだけ押してください。";
+    }
 
     var today = new Date();
     var d = $("in-date");
