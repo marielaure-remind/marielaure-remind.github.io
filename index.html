@@ -599,6 +599,22 @@
     return (d.getMonth() + 1) + "月" + d.getDate() + "日（" + WEEKDAY_JA[d.getDay()] + "）" +
       pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + "〜";
   }
+  // メニューの選択肢を「なし＋指定の項目だけ」に入れ替える（配布先ごとの絞り込み用）
+  function limitMenu(id, names) {
+    var sel = $(id);
+    sel.innerHTML = "";
+    var none = document.createElement("option");
+    none.value = "";
+    none.textContent = "なし";
+    sel.appendChild(none);
+    names.forEach(function (n) {
+      var o = document.createElement("option");
+      o.value = n;
+      o.textContent = n;
+      sel.appendChild(o);
+    });
+  }
+
   // 選んだメニュー（ハンド・フット）をまとめた文字列
   function selectedMenuText() {
     var parts = [];
@@ -832,9 +848,12 @@
     var storeParam = new URLSearchParams(location.search).get("store");
     if (storeParam && $("st-" + storeParam)) $("st-" + storeParam).checked = true;
 
-    // 送り先の切り替え中は、ボタン下の説明も送り先に合わせる
+    // 送り先の切り替え中は、ボタン下の説明とメニューの選択肢も配布先に合わせる
     if (lineOverride) {
       $("line-btn-note").innerHTML = "マリーロールの公式LINE（MarieLaure）が開いて、日時とメニューの入った文面が自動で入ります。<br>最後に、LINEの送信ボタンだけ押してください。";
+      // MarieLaure配布版はメニューを「ワンカラー＋上記以外」に絞る（2026-09-04 本人指示・表記も本人指定）
+      limitMenu("in-menu-hand", ["ワンカラー（ハンド）", "上記以外（ハンド）"]);
+      limitMenu("in-menu-foot", ["ワンカラー（フット）", "上記以外（フット）"]);
     }
 
     var today = new Date();
